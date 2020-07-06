@@ -11,7 +11,7 @@ import UIKit
 class ProductViewModel: NSObject, webclassdelegate {
 
     var productTableTitle: String
-    
+
     // Closure use to notify view
        var reloadList = {() -> Void in }
        var errorMessage = {(message: String) -> Void in }
@@ -27,7 +27,7 @@ class ProductViewModel: NSObject, webclassdelegate {
             reloadList()
         }
     }
-    
+
     // MARK: - API Related methods
     //calling API
     func callingAPItoGetProductDetails() {
@@ -37,8 +37,8 @@ class ProductViewModel: NSObject, webclassdelegate {
     }
     // get API response
     func getResponse(result: NSDictionary) {
-        self.productTableTitle = result["title"] as! String
-        let dummyArray: Array = result["rows"] as! [Any]
+        self.productTableTitle = (result["title"] as? String)!
+        let dummyArray: Array = (result["rows"] as? [Any])!
         // Saving dat by using Product Model
         for case let productDictionary as NSDictionary in dummyArray {
             let product = ProductModel(name: productDictionary["title"] as? String ?? "", imageurl: productDictionary["imageHref"] as? String ?? "", description: productDictionary["description"] as? String ?? "" )

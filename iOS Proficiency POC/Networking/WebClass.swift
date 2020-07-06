@@ -8,6 +8,7 @@
 
 import UIKit
 import Foundation
+import Reachability
 
 protocol webclassdelegate: class {
     func getResponse(result: NSDictionary)
@@ -15,22 +16,22 @@ protocol webclassdelegate: class {
 }
 
 class WebClass: NSObject {
-    
-    private var reachability = try! Reachability()
+
+    private var reachability = try? Reachability()
     weak var webdelegate: webclassdelegate?
-    
+
     func observeReachability() {
         NotificationCenter.default.addObserver(self, selector: #selector(self.reachabilityChanged), name: NSNotification.Name.reachabilityChanged, object: nil)
         do {
-            try self.reachability.startNotifier()
+            try self.reachability?.startNotifier()
         } catch let error {
             print("Error occured while starting reachability notifications : \(error.localizedDescription)")
         }
     }
 
     @objc func reachabilityChanged(note: Notification) {
-        let reachability = note.object as! Reachability
-        switch reachability.connection {
+        let reachability = note.object as? Reachability
+        switch reachability?.connection {
         case .cellular:
             print("Network available via Cellular Data.")
         case .wifi:
@@ -39,9 +40,11 @@ class WebClass: NSObject {
             print("Network is not available.")
         case .unavailable:
             print("Network is  unavailable.")
+        case .some(.none):
+            print("Network is  unavailable.")
         }
       }
-    
+
       func requestWithURL(requestUrl: String) {
         let urlwithPercentEscapes = requestUrl.addingPercentEncoding( withAllowedCharacters: .urlQueryAllowed)!
          let serviceUrl = URL(string: urlwithPercentEscapes)
@@ -50,7 +53,7 @@ class WebClass: NSObject {
 
          request.httpMethod = "GET"
          request.addValue("application/json", forHTTPHeaderField: "Accept")
-        
+
         let session = URLSession.shared
         let task = session.dataTask(with: request) { (data, _, error) in
              // Get the dat from API and pass through deledate methods
@@ -63,7 +66,7 @@ class WebClass: NSObject {
                  }
                 do {
                    if let responseJSONDict = try JSONSerialization.jsonObject(with: modifiedDataInUTF8Format) as? NSDictionary {
-                    print(responseJSONDict)
+                    //print(responseJSONDict)
                         self.mainResponse(result: responseJSONDict)
                         }
                 } catch {
@@ -75,7 +78,7 @@ class WebClass: NSObject {
          }
          task.resume()
          session.finishTasksAndInvalidate()
-        
+
     }
     func mainResponse(result: NSDictionary) {
         self.webdelegate?.getResponse(result: result)

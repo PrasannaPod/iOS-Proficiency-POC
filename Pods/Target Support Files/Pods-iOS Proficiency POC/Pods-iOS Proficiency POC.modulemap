@@ -1,0 +1,6 @@
+framework module Pods_iOS_Proficiency_POC {
+  umbrella header "Pods-iOS Proficiency POC-umbrella.h"
+
+  export *
+  module * { export * }
+}
